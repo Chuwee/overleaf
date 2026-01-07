@@ -5,10 +5,12 @@ import EditorNavigationToolbarRoot from '@/features/editor-navigation-toolbar/co
 import ShareProjectModal from '@/features/share-project-modal/components/share-project-modal'
 import EditorOverLimitModal from '@/features/share-project-modal/components/editor-over-limit-modal'
 import ViewOnlyAccessModal from '@/features/share-project-modal/components/view-only-access-modal'
+import GitHubSyncModal from '@/features/github/components/github-sync-modal'
 import { useEditorAnalytics } from '@/shared/hooks/use-editor-analytics'
 
 function EditorNavigationToolbar() {
   const [showShareModal, setShowShareModal] = useState(false)
+  const [showGitHubModal, setShowGitHubModal] = useState(false)
   const { onlineUsersArray } = useOnlineUsersContext()
   const { openDoc } = useEditorManagerContext()
   const { sendEventOnce } = useEditorAnalytics()
@@ -22,12 +24,21 @@ function EditorNavigationToolbar() {
     setShowShareModal(false)
   }, [])
 
+  const handleOpenGitHubModal = useCallback(() => {
+    setShowGitHubModal(true)
+  }, [])
+
+  const handleHideGitHubModal = useCallback(() => {
+    setShowGitHubModal(false)
+  }, [])
+
   return (
     <>
       <EditorNavigationToolbarRoot
         onlineUsersArray={onlineUsersArray}
         openDoc={openDoc}
         openShareProjectModal={handleOpenShareModal}
+        openGitHubModal={handleOpenGitHubModal}
       />
       <EditorOverLimitModal />
       <ViewOnlyAccessModal />
@@ -35,6 +46,10 @@ function EditorNavigationToolbar() {
         show={showShareModal}
         handleOpen={handleOpenShareModal}
         handleHide={handleHideShareModal}
+      />
+      <GitHubSyncModal
+        show={showGitHubModal}
+        handleHide={handleHideGitHubModal}
       />
     </>
   )

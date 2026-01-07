@@ -15,6 +15,8 @@ services:
         stop_grace_period: 60s
         volumes:
             - ~/sharelatex_data:/var/lib/overleaf
+            - ./services/web:/overleaf/services/web
+            - /overleaf/services/web/node_modules
             ########################################################################
             ####  Server Pro: Uncomment the following line to mount the docker  ####
             ####             socket, required for Sibling Containers to work    ####
@@ -41,6 +43,9 @@ services:
 
             ## Set for SSL via nginx-proxy
             #VIRTUAL_HOST: 103.112.212.22
+
+            OVERLEAF_SESSION_SECRET: 'secret'
+            OVERLEAF_COOKIE_SECRET: 'secret'
 
             # OVERLEAF_SITE_URL: http://overleaf.example.com
             # OVERLEAF_NAV_TITLE: Overleaf Community Edition
@@ -77,14 +82,14 @@ services:
             ## so the following environment variables must be commented out to avoid compile issues.
             ##
             ## Sandboxed Compiles: https://docs.overleaf.com/on-premises/configuration/overleaf-toolkit/server-pro-only-configuration/sandboxed-compiles
-            SANDBOXED_COMPILES: 'true'
-            ### Bind-mount source for /var/lib/overleaf/data/compiles inside the container.
-            SANDBOXED_COMPILES_HOST_DIR_COMPILES: '/home/user/sharelatex_data/data/compiles'
-            ### Bind-mount source for /var/lib/overleaf/data/output inside the container.
-            SANDBOXED_COMPILES_HOST_DIR_OUTPUT: '/home/user/sharelatex_data/data/output'
-            ### Backwards compatibility (before Server Pro 5.5)
-            DOCKER_RUNNER: 'true'
-            SANDBOXED_COMPILES_SIBLING_CONTAINERS: 'true'
+            # SANDBOXED_COMPILES: 'true'
+            # ### Bind-mount source for /var/lib/overleaf/data/compiles inside the container.
+            # SANDBOXED_COMPILES_HOST_DIR_COMPILES: '/home/user/sharelatex_data/data/compiles'
+            # ### Bind-mount source for /var/lib/overleaf/data/output inside the container.
+            # SANDBOXED_COMPILES_HOST_DIR_OUTPUT: '/home/user/sharelatex_data/data/output'
+            # ### Backwards compatibility (before Server Pro 5.5)
+            # DOCKER_RUNNER: 'true'
+            # SANDBOXED_COMPILES_SIBLING_CONTAINERS: 'true'
 
             ## Works with test LDAP server shown at bottom of docker compose
             # OVERLEAF_LDAP_URL: 'ldap://ldap:389'
@@ -105,7 +110,7 @@ services:
 
     mongo:
         restart: always
-        image: mongo:6.0
+        image: mongo:8.0
         container_name: mongo
         command: '--replSet overleaf'
         volumes:

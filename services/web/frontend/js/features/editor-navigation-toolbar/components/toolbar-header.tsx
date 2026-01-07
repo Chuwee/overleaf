@@ -38,7 +38,7 @@ const offlineModeToolbarButtons = importOverleafModules(
 const enableROMirrorOnClient =
   isSplitTestEnabled('ro-mirror-on-client') &&
   new URLSearchParams(window.location.search).get('ro-mirror-on-client') ===
-    'enabled'
+  'enabled'
 
 export type ToolbarHeaderProps = {
   cobranding: Cobranding | undefined
@@ -59,6 +59,7 @@ export type ToolbarHeaderProps = {
   renameProject: (name: string) => void
   hasRenamePermissions: boolean
   openShareModal: () => void
+  openGitHubModal: () => void
   trackChangesVisible: boolean | undefined
 }
 
@@ -81,6 +82,7 @@ const ToolbarHeader = React.memo(function ToolbarHeader({
   renameProject,
   hasRenamePermissions,
   openShareModal,
+  openGitHubModal,
   trackChangesVisible,
 }: ToolbarHeaderProps) {
   const chatEnabled = getMeta('ol-capabilities')?.includes('chat')
@@ -135,6 +137,11 @@ const ToolbarHeader = React.memo(function ToolbarHeader({
             )}
 
             <ShareProjectButton onClick={openShareModal} />
+            <div className="toolbar-item">
+              <button className="btn btn-full-height" onClick={openGitHubModal}>
+                <p className="toolbar-label">GitHub</p>
+              </button>
+            </div>
             {shouldDisplayPublishButton && (
               <PublishButton cobranding={cobranding} />
             )}

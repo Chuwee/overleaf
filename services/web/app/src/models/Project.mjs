@@ -103,6 +103,13 @@ export const ProjectSchema = new Schema(
       },
     ],
     deferredTpdsFlushCounter: { type: Number },
+    github: {
+      url: { type: String },
+      branch: { type: String, default: 'main' },
+      token: { type: String },
+      autosave: { type: Boolean, default: false },
+      lastSyncedAt: { type: Date },
+    },
   },
   { minimize: false }
 )

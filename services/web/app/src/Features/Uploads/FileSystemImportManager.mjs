@@ -9,10 +9,12 @@ import logger from '@overleaf/logger'
 
 export default {
   addEntity: callbackify(addEntity),
+  addFolderContents: callbackify(addFolderContents),
   importDir: callbackify(importDir),
   importFile: callbackify(importDir),
   promises: {
     addEntity,
+    addFolderContents,
     importDir,
     importFile,
   },

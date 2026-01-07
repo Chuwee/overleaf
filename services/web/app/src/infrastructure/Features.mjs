@@ -61,7 +61,7 @@ const Features = {
       case 'link-sharing':
         return Boolean(Settings.disableLinkSharing) === false
       case 'github-sync':
-        return Boolean(Settings.enableGithubSync)
+        return true // Boolean(Settings.enableGithubSync)
       case 'git-bridge':
         return Boolean(Settings.enableGitBridge)
       case 'oauth':
@@ -84,7 +84,7 @@ const Features = {
       case 'link-url':
         return Boolean(
           _.get(Settings, ['apis', 'linkedUrlProxy', 'url']) &&
-            Settings.enabledLinkedFileTypes.includes('url')
+          Settings.enabledLinkedFileTypes.includes('url')
         )
       case 'support':
         return supportModuleAvailable

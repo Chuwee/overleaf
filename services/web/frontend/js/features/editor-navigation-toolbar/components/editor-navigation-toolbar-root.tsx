@@ -18,6 +18,7 @@ const EditorNavigationToolbarRoot = React.memo(
     onlineUsersArray,
     openDoc,
     openShareProjectModal,
+    openGitHubModal,
   }: {
     onlineUsersArray: OnlineUser[]
     openDoc: (
@@ -25,6 +26,7 @@ const EditorNavigationToolbarRoot = React.memo(
       { gotoLine }: { gotoLine: number }
     ) => Promise<Doc | undefined>
     openShareProjectModal: () => void
+    openGitHubModal: () => void
   }) {
     const {
       name: projectName,
@@ -126,6 +128,7 @@ const EditorNavigationToolbarRoot = React.memo(
         renameProject={renameProject}
         hasRenamePermissions={permissionsLevel === 'owner'}
         openShareModal={openShareModal}
+        openGitHubModal={openGitHubModal}
         trackChangesVisible={trackChangesVisible}
       />
     )

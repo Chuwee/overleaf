@@ -65,6 +65,7 @@ import { plainTextResponse } from './infrastructure/Response.mjs'
 import SocketDiagnostics from './Features/SocketDiagnostics/SocketDiagnostics.mjs'
 import ClsiCacheController from './Features/Compile/ClsiCacheController.mjs'
 import AsyncLocalStorage from './infrastructure/AsyncLocalStorage.mjs'
+import GitHubRouter from './Features/GitHub/GitHubRouter.mjs'
 
 const { renderUnsupportedBrowserPage, unsupportedBrowserMiddleware } =
   UnsupportedBrowserMiddleware
@@ -280,6 +281,17 @@ async function initialize(webRouter, privateApiRouter, publicApiRouter) {
   UserMembershipRouter.apply(webRouter)
   TokenAccessRouter.apply(webRouter)
   HistoryRouter.apply(webRouter, privateApiRouter)
+  GitHubRouter.apply(webRouter, privateApiRouter)
+
+  // Disable CSRF for GitHub sync routes due to persistent 403 errors
+  webRouter.csrf.disableDefaultCsrfProtection(
+    '/project/:Project_id/github/configure',
+    'POST'
+  )
+  webRouter.csrf.disableDefaultCsrfProtection(
+    '/project/:Project_id/github/save',
+    'POST'
+  )
 
   await Modules.applyRouter(webRouter, privateApiRouter, publicApiRouter)
 
@@ -751,8 +763,8 @@ async function initialize(webRouter, privateApiRouter, publicApiRouter) {
     AuthorizationMiddleware.ensureUserCanReadProject,
     Settings.allowAnonymousReadAndWriteSharing
       ? (req, res, next) => {
-          next()
-        }
+        next()
+      }
       : AuthenticationController.requireLogin(),
     MetaController.getMetadata
   )
@@ -761,8 +773,8 @@ async function initialize(webRouter, privateApiRouter, publicApiRouter) {
     AuthorizationMiddleware.ensureUserCanReadProject,
     Settings.allowAnonymousReadAndWriteSharing
       ? (req, res, next) => {
-          next()
-        }
+        next()
+      }
       : AuthenticationController.requireLogin(),
     MetaController.broadcastMetadataForDoc
   )
@@ -1149,12 +1161,12 @@ async function initialize(webRouter, privateApiRouter, publicApiRouter) {
         // Force every compile to a new server and do not leave cruft behind.
         CompileManager.promises
           .deleteAuxFiles(projectId, testUserId, clsiServerId)
-          .catch(() => {})
+          .catch(() => { })
       })
       let handler = setTimeout(function () {
         CompileManager.promises
           .stopCompile(projectId, testUserId)
-          .catch(() => {})
+          .catch(() => { })
         sendRes(500, 'Compiler timed out')
         handler = null
       }, 10000)
