@@ -11,6 +11,13 @@ export default {
             GitHubController.configure
         )
 
+        webRouter.get(
+            '/project/:Project_id/github/details',
+            AuthenticationController.requireLogin(),
+            AuthorizationMiddleware.ensureUserCanAdminProject,
+            GitHubController.getDetails
+        )
+
         webRouter.post(
             '/project/:Project_id/github/save',
             AuthenticationController.requireLogin(),

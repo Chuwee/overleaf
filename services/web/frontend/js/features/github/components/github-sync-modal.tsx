@@ -28,6 +28,28 @@ export default function GitHubSyncModal({ show, handleHide }: GitHubSyncModalPro
     // We should fetch existing settings on open. For MVP, we might skip fetching valid tokens (security) but should fetch URL/Branch.
     // Let's rely on user re-entering token for security for now or assume we can build an endpoint to get config status.
 
+    useEffect(() => {
+        if (!show) return
+        setLoading(true)
+        fetch(`/project/${projectId}/github/details`, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to fetch config')
+                return res.json()
+            })
+            .then(data => {
+                if (data.url) setUrl(data.url)
+                if (data.branch) setBranch(data.branch)
+                if (data.token) setToken(data.token) // Populating token as requested
+                if (data.autosave !== undefined) setAutosave(data.autosave)
+            })
+            .catch(e => console.error(e)) // Silent fail or log
+            .finally(() => setLoading(false))
+    }, [show, projectId])
+
     const handleLink = async () => {
         setLoading(true)
         setMessage('')

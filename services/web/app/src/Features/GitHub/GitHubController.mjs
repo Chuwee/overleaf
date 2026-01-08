@@ -175,7 +175,24 @@ async function save(req, res) {
     }
 }
 
+async function getDetails(req, res) {
+    const projectId = req.params.Project_id
+    const project = await ProjectGetter.promises.getProject(projectId)
+
+    if (project.github) {
+        res.json({
+            url: project.github.url || '',
+            branch: project.github.branch || '',
+            token: project.github.token || '', // Returning token as requested for persistence perception
+            autosave: !!project.github.autosave
+        })
+    } else {
+        res.json({ url: '', branch: 'main', token: '', autosave: false })
+    }
+}
+
 export default {
     configure: expressify(configure),
-    save: expressify(save)
+    save: expressify(save),
+    getDetails: expressify(getDetails)
 }
