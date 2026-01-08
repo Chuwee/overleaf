@@ -144,20 +144,23 @@ async function save(req, res) {
         // For now, let's stick to Docs (tex files) to reduce risk of complexity in this step.
         // If user asks for images, we can add it. The prompt "whenever we're editing a document" implies tex mostly.
 
-        // 6. Commit and Push
-        logger.info({ projectId }, 'Committing changes')
+        // 6. Check for changes
+        logger.info({ projectId }, 'Checking for changes')
         await execPromise(`git add .`, { cwd: tmpDir })
-        try {
-            await execPromise(`git commit -m "Overleaf Update: ${new Date().toISOString()}"`, { cwd: tmpDir })
-            logger.info({ projectId }, 'Pushing changes')
-            await execPromise(`git push origin ${branch}`, { cwd: tmpDir })
-        } catch (e) {
-            if (e.stdout && e.stdout.includes('nothing to commit')) {
-                logger.info({ projectId }, 'Nothing to commit')
-            } else {
-                throw e
-            }
+
+        const { stdout: statusOutput } = await execPromise(`git status --porcelain`, { cwd: tmpDir })
+
+        if (!statusOutput.trim()) {
+            logger.info({ projectId }, 'No changes to save')
+            res.json({ success: true, message: 'No changes to save' })
+            return
         }
+
+        // 7. Commit and Push
+        logger.info({ projectId }, 'Committing changes')
+        await execPromise(`git commit -m "Overleaf Update: ${new Date().toISOString()}"`, { cwd: tmpDir })
+        logger.info({ projectId }, 'Pushing changes')
+        await execPromise(`git push origin ${branch}`, { cwd: tmpDir })
 
         await Project.updateOne({ _id: projectId }, { $set: { 'github.lastSyncedAt': new Date() } })
         res.json({ success: true, message: 'Synced successfully' })
