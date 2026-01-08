@@ -29,7 +29,7 @@ export default function GitHubSyncModal({ show, handleHide }: GitHubSyncModalPro
     // Let's rely on user re-entering token for security for now or assume we can build an endpoint to get config status.
 
     useEffect(() => {
-        if (!show) return
+        // Fetch config on mount so autosave can start immediately if enabled
         setLoading(true)
         fetch(`/project/${projectId}/github/details`, {
             headers: {
@@ -43,12 +43,12 @@ export default function GitHubSyncModal({ show, handleHide }: GitHubSyncModalPro
             .then(data => {
                 if (data.url) setUrl(data.url)
                 if (data.branch) setBranch(data.branch)
-                if (data.token) setToken(data.token) // Populating token as requested
+                if (data.token) setToken(data.token)
                 if (data.autosave !== undefined) setAutosave(data.autosave)
             })
-            .catch(e => console.error(e)) // Silent fail or log
+            .catch(e => console.error(e))
             .finally(() => setLoading(false))
-    }, [show, projectId])
+    }, [projectId])
 
     const handleLink = async () => {
         setLoading(true)
@@ -72,8 +72,12 @@ export default function GitHubSyncModal({ show, handleHide }: GitHubSyncModalPro
     }
 
     const handleSave = async () => {
-        setLoading(true)
-        setMessage('Syncing...')
+        // Don't show loading/messages if this is a background autosave (modal closed)
+        if (show) {
+            setLoading(true)
+            setMessage('Syncing...')
+        }
+
         try {
             const response = await fetch(`/project/${projectId}/github/save`, {
                 method: 'POST',
@@ -84,27 +88,25 @@ export default function GitHubSyncModal({ show, handleHide }: GitHubSyncModalPro
             })
             const data = await response.json()
             if (!response.ok) throw new Error(data.message || 'Failed to save')
-            setMessage(data.message || 'Saved successfully!')
+
+            if (show) setMessage(data.message || 'Saved successfully!')
         } catch (e) {
-            setMessage('Error saving: ' + e.message)
+            if (show) setMessage('Error saving: ' + e.message)
+            console.error('Autosave error:', e)
         } finally {
-            setLoading(false)
+            if (show) setLoading(false)
         }
     }
 
     // Auto-save logic: frontend poller
     useEffect(() => {
-        if (!autosave || !show) return
+        // Run if autosave is enabled, regardless of modal visibility
+        if (!autosave) return
         const interval = setInterval(() => {
-            // We only trigger if autosave is enabled. 
-            // Ideally backend handles autosave, but prompt asked specifically for "Auto save to github can be enabled... causing it to commit every ... 5 minutes"
-            // A frontend timer is simple but requires the tab to be open. A backend job is better.
-            // My plan said "Backend job or trigger", but my implementation note said "Frontend poller".
-            // Let's stick to frontend poller for MVP as backend schedulers are complex in this codebase (Redis/Bull).
             handleSave()
         }, 5 * 60 * 1000)
         return () => clearInterval(interval)
-    }, [autosave, show])
+    }, [autosave])
 
     return (
         <Modal show={show} onHide={handleHide}>
