@@ -87,7 +87,9 @@ describe('GracefulShutdown', function () {
     bringServerProBackUp()
 
     cy.then(() => {
-      cy.visit(`/project/${projectId}?trick-cypress-into-page-reload=true`)
+      cy.visit(
+        `/project/${projectId}?trick-cypress-into-page-reload=true&old-editor-override=true`
+      )
     })
 
     cy.log('check loading doc from mongo')

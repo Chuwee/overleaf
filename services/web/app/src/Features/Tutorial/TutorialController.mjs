@@ -12,7 +12,6 @@ const VALID_KEYS = [
   'history-restore-promo',
   'us-gov-banner',
   'us-gov-banner-fedramp',
-  'full-project-search-promo',
   'editor-popup-ux-survey',
   'wf-features-moved',
   'review-mode',
@@ -29,6 +28,7 @@ const VALID_KEYS = [
   'new-editor-intro',
   'new-editor-intro-2',
   'old-editor-warning-tooltip',
+  'old-editor-warning-tooltip-2',
   'workbench-rail-popover',
 ]
 

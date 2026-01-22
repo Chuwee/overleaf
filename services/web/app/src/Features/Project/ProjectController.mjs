@@ -46,7 +46,7 @@ import TagsHandler from '../Tags/TagsHandler.mjs'
 import TutorialHandler from '../Tutorial/TutorialHandler.mjs'
 import UserUpdater from '../User/UserUpdater.mjs'
 import Modules from '../../infrastructure/Modules.mjs'
-import { z, zz, validateReq } from '../../infrastructure/Validation.mjs'
+import { z, zz, parseReq } from '../../infrastructure/Validation.mjs'
 import UserGetter from '../User/UserGetter.mjs'
 import { isStandaloneAiAddOnPlanCode } from '../Subscription/AiHelper.mjs'
 import SubscriptionController from '../Subscription/SubscriptionController.mjs'
@@ -100,7 +100,7 @@ const _ProjectController = {
   },
 
   async updateProjectSettings(req, res) {
-    const { params, body } = validateReq(req, updateProjectSettingsSchema)
+    const { params, body } = parseReq(req, updateProjectSettingsSchema)
     const projectId = params.Project_id
 
     if (body.compiler != null) {
@@ -137,7 +137,7 @@ const _ProjectController = {
   },
 
   async updateProjectAdminSettings(req, res) {
-    const { params, body } = validateReq(req, updateProjectAdminSettingsSchema)
+    const { params, body } = parseReq(req, updateProjectAdminSettingsSchema)
     const projectId = params.Project_id
     const user = SessionManager.getSessionUser(req.session)
     if (!Features.hasFeature('link-sharing')) {
@@ -432,6 +432,7 @@ const _ProjectController = {
     }
 
     const splitTests = [
+      'bibtex-visual-editor',
       'compile-log-events',
       'visual-preview',
       'external-socket-heartbeat',
@@ -444,7 +445,6 @@ const _ProjectController = {
       'track-pdf-download',
       !anonymous && 'writefull-oauth-promotion',
       'hotjar',
-      'editor-redesign',
       'overleaf-assist-bundle',
       'word-count-client',
       'editor-popup-ux-survey',
@@ -458,9 +458,10 @@ const _ProjectController = {
       'wf-citations-checker',
       'wf-citations-checker-on-selection',
       'writefull-asymetric-queue-size-per-model',
-      'pdf-dark-mode',
-      'editor-redesign-opt-out',
+      'writefull-encourage-prompt-for-paraphrase',
+      'editor-context-menu',
       'email-notifications',
+      'editor-redesign-no-opt-out',
     ].filter(Boolean)
 
     const getUserValues = async userId =>

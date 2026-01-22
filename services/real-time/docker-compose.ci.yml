@@ -8,16 +8,19 @@ services:
     user: node
     volumes:
       - ./reports:/overleaf/services/real-time/reports
+      - ../../tsconfig.backend.json:/overleaf/tsconfig.backend.json
     command: npm run test:unit:_run
     environment:
       CI:
       MONGO_CONNECTION_STRING: mongodb://mongo/test-overleaf
       NODE_ENV: test
       NODE_OPTIONS: "--unhandled-rejections=strict"
+      VITEST_NO_CACHE: true
       REDIS_HOST: redis_test
       QUEUES_REDIS_HOST: redis_test
       HISTORY_REDIS_HOST: redis_test
       ANALYTICS_QUEUES_REDIS_HOST: redis_test
+      ANALYTICS_QUEUES_BQ_SINK_REDIS_HOST: redis_test
     depends_on:
       redis_test:
         condition: service_healthy
@@ -33,6 +36,7 @@ services:
       QUEUES_REDIS_HOST: redis_test
       HISTORY_REDIS_HOST: redis_test
       ANALYTICS_QUEUES_REDIS_HOST: redis_test
+      ANALYTICS_QUEUES_BQ_SINK_REDIS_HOST: redis_test
       MONGO_HOST: mongo
       POSTGRES_HOST: postgres
       MOCHA_GREP: ${MOCHA_GREP}

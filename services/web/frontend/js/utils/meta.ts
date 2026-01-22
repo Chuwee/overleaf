@@ -66,6 +66,7 @@ import { Subscription as AdminSubscription } from '../../../types/admin/subscrip
 import { AdminCapability } from '../../../types/admin-capabilities'
 import { AlgoliaConfig } from '../../../modules/algolia-search/frontend/js/types'
 import { WritefullPublicEnv } from '@wf/domain/writefull-public-env'
+import { UserNotificationPreferences } from '../../../types/notifications'
 
 export interface Meta {
   'ol-ExposedSettings': ExposedSettings
@@ -75,6 +76,7 @@ export interface Meta {
   >
   'ol-adminCapabilities': AdminCapability[]
   'ol-adminSubscription': AdminSubscription
+  'ol-adminUserExists': boolean
   'ol-aiAssistViaWritefullSource': string
   'ol-algolia': AlgoliaConfig | undefined
   'ol-allInReconfirmNotificationPeriods': UserEmailData[]
@@ -211,6 +213,7 @@ export interface Meta {
   'ol-odcData': OnboardingFormData
   'ol-otMigrationStage': number
   'ol-overallThemes': OverallThemeMeta[]
+  'ol-ownerIsManaged': boolean
   'ol-pages': number
   'ol-passwordStrengthOptions': PasswordStrengthOptions
   'ol-paywallPlans': { [key: string]: string }
@@ -317,6 +320,7 @@ export interface Meta {
   'ol-userCanExtendTrial': boolean
   'ol-userCanNotStartRequestedTrial': boolean
   'ol-userEmails': UserEmailData[]
+  'ol-userNotificationPreferences': UserNotificationPreferences
   'ol-userSettings': UserSettings
   'ol-user_id': string | undefined
   'ol-users': ManagedUser[]

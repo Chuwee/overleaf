@@ -31,6 +31,7 @@ import importOverleafModules from '../../../../../macros/import-overleaf-module.
 import EditorTourThemeTooltip from '../editor-tour/editor-tour-theme-tooltip'
 import EditorTourSwitchBackTooltip from '../editor-tour/editor-tour-switch-back-tooltip'
 import { shouldIncludeElement } from '../../utils/rail-utils'
+import { useEditorContext } from '@/shared/context/editor-context'
 
 const moduleRailEntries = (
   importOverleafModules('railEntries') as {
@@ -57,6 +58,9 @@ export const RailLayout = () => {
   const { t } = useTranslation()
   const { selectedTab, openTab, isOpen, togglePane } = useRailContext()
   const { features } = useProjectContext()
+  const { isRestrictedTokenMember } = useEditorContext()
+  const gitBridgeEnabled = getMeta('ol-gitBridgeEnabled')
+  const { isOverleaf } = getMeta('ol-ExposedSettings')
 
   const { view, setLeftMenuShown } = useLayoutContext()
 
@@ -91,6 +95,7 @@ export const RailLayout = () => {
         icon: 'integration_instructions',
         title: t('integrations'),
         component: <IntegrationsPanel />,
+        hide: !isOverleaf && !gitBridgeEnabled,
       },
       {
         key: 'review-panel',
@@ -106,11 +111,20 @@ export const RailLayout = () => {
         component: <ChatPane />,
         indicator: <ChatIndicator />,
         title: t('chat'),
-        hide: !getMeta('ol-capabilities')?.includes('chat'),
+        hide:
+          !getMeta('ol-capabilities')?.includes('chat') ||
+          isRestrictedTokenMember,
       },
       ...moduleRailEntries,
     ],
-    [t, features.trackChangesVisible, view]
+    [
+      t,
+      features.trackChangesVisible,
+      view,
+      isRestrictedTokenMember,
+      isOverleaf,
+      gitBridgeEnabled,
+    ]
   )
 
   const railActions: RailAction[] = useMemo(

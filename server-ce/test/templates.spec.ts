@@ -1,6 +1,10 @@
 import { isExcludedBySharding, startWith } from './helpers/config'
 import { ensureUserExists, login } from './helpers/login'
-import { createProject, NEW_PROJECT_BUTTON_MATCHER } from './helpers/project'
+import {
+  createProject,
+  NEW_PROJECT_BUTTON_MATCHER,
+  redirectEditorUrlWithQueryParams,
+} from './helpers/project'
 
 const WITHOUT_PROJECTS_USER = 'user-without-projects@example.com'
 const ADMIN_USER = 'admin@example.com'
@@ -126,6 +130,7 @@ describe('Templates', function () {
       cy.findByRole('heading', { name }).should('not.exist')
 
       // Publish again
+      redirectEditorUrlWithQueryParams(false)
       cy.get('@templateProjectId').then(projectId =>
         cy.visit(`/project/${projectId}`)
       )
@@ -155,6 +160,7 @@ describe('Templates', function () {
       cy.visit('/templates')
       cy.findByRole('link', { name: tagName }).click()
       cy.findByRole('link', { name }).click()
+      redirectEditorUrlWithQueryParams(false)
       cy.findByRole('link', { name: 'Open as Template' }).click()
       cy.findByRole('navigation', { name: 'Project actions' }).findByText(
         /Your Paper/i
@@ -179,6 +185,7 @@ describe('Templates', function () {
       cy.findByRole('link', { name: 'Open as Template' })
       cy.findByRole('button', { name: 'Unpublish' })
       cy.findByRole('button', { name: 'Republish' })
+      redirectEditorUrlWithQueryParams(false)
       cy.get('@templateProjectId').then(projectId =>
         cy.visit(`/project/${projectId}`)
       )
@@ -194,6 +201,7 @@ describe('Templates', function () {
       login(TEMPLATES_USER)
 
       // Unpublish via editor
+      redirectEditorUrlWithQueryParams(false)
       cy.get('@templateProjectId').then(projectId =>
         cy.visit(`/project/${projectId}`)
       )

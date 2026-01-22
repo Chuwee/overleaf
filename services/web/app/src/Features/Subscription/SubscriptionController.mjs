@@ -32,7 +32,7 @@ import { User } from '../../models/User.mjs'
 import UserGetter from '../User/UserGetter.mjs'
 import PermissionsManager from '../Authorization/PermissionsManager.mjs'
 import { sanitizeSessionUserForFrontEnd } from '../../infrastructure/FrontEndUser.mjs'
-import { z, validateReq } from '../../infrastructure/Validation.mjs'
+import { z, parseReq } from '../../infrastructure/Validation.mjs'
 import { IndeterminateInvoiceError } from '../Errors/Errors.js'
 import SubscriptionLocator from './SubscriptionLocator.mjs'
 
@@ -172,39 +172,6 @@ function formatGroupPlansDataForDash() {
   }
 }
 
-/**
- * Trim the staffAccess object to only include allowed fields
- * @param {Object} user - The user object with mongoose object fields
- * @returns {Object} - User object with trimmed staffAccess
- */
-function _trimStaffAccess(user) {
-  if (!user || !user.staffAccess) return user
-
-  const allowedFields = [
-    'publisherMetrics',
-    'publisherManagement',
-    'institutionMetrics',
-    'institutionManagement',
-    'groupMetrics',
-    'groupManagement',
-    'adminMetrics',
-    'splitTestMetrics',
-    'splitTestManagement',
-  ]
-
-  const trimmedStaffAccess = allowedFields.reduce((acc, key) => {
-    if (key in user.staffAccess) {
-      acc[key] = user.staffAccess[key]
-    }
-    return acc
-  }, {})
-
-  return {
-    ...user,
-    staffAccess: trimmedStaffAccess,
-  }
-}
-
 async function userSubscriptionPage(req, res) {
   const user = SessionManager.getSessionUser(req.session)
   await SplitTestHandler.promises.getAssignment(req, res, 'pause-subscription')
@@ -337,7 +304,7 @@ async function userSubscriptionPage(req, res) {
     title: 'your_subscriptions',
     plans: plansData?.plans,
     planCodesChangingAtTermEnd: plansData?.planCodesChangingAtTermEnd,
-    user: _trimStaffAccess(user),
+    user,
     hasSubscription,
     fromPlansPage,
     redirectedPaymentErrorCode,
@@ -407,7 +374,7 @@ const pauseSubscriptionSchema = z.object({
 
 async function pauseSubscription(req, res, next) {
   const user = SessionManager.getSessionUser(req.session)
-  const { params } = validateReq(req, pauseSubscriptionSchema)
+  const { params } = parseReq(req, pauseSubscriptionSchema)
   const pauseCycles = params.pauseCycles
   if (pauseCycles < 0) {
     return HttpErrorHandler.badRequest(
@@ -631,7 +598,7 @@ const purchaseAddonSchema = z.object({
 
 async function purchaseAddon(req, res, next) {
   const user = SessionManager.getSessionUser(req.session)
-  const { params } = validateReq(req, purchaseAddonSchema)
+  const { params } = parseReq(req, purchaseAddonSchema)
   const addOnCode = params.addOnCode
   // currently we only support having a quantity of 1
   const quantity = 1
@@ -716,7 +683,7 @@ const removeAddonSchema = z.object({
 
 async function removeAddon(req, res, next) {
   const user = SessionManager.getSessionUser(req.session)
-  const { params } = validateReq(req, removeAddonSchema)
+  const { params } = parseReq(req, removeAddonSchema)
   const addOnCode = params.addOnCode
 
   if (addOnCode !== AI_ADD_ON_CODE) {
@@ -761,7 +728,7 @@ const reactivateAddonSchema = z.object({
  */
 async function reactivateAddon(req, res) {
   const user = SessionManager.getSessionUser(req.session)
-  const { params } = validateReq(req, reactivateAddonSchema)
+  const { params } = parseReq(req, reactivateAddonSchema)
   const addOnCode = params.addOnCode
 
   if (addOnCode !== AI_ADD_ON_CODE) {
